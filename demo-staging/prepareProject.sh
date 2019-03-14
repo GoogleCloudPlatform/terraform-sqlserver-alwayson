@@ -7,7 +7,7 @@ project='{your-project-id}'
 projectNumber={your-project-number}
 
 #differentiate this deployment from others
-prefix='tfdemo'
+prefix='{desired-domain-name-and-unique-seed-for-bucket-name}'
 
 #user you will be running as
 user="{user-you-will-run-as}"
