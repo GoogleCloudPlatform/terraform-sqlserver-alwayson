@@ -1,3 +1,18 @@
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+
 $tempdir = "c:\temp\"
 $tempdir = $tempdir.tostring()
 $appToMatch = 'Stackdriver*'
@@ -69,24 +84,6 @@ if((Test-Path $tempPath) -eq 0){
    Write-Host "created c:\temp"
 }
 
-# $executable = $kitPath + "\rktools.exe"
-# $msiFile = $kitPath + "\rktools.msi"
-#
-# Write-Host $executable
-#
-# if((Test-Path $msiFile) -eq 0){
-#     Write-Host "Quietly extract the installer"
-#     #Quietly extract the installer
-#     Start-Process -FilePath $executable -ArgumentList "/Q","/T:c:\temp\reskit", "/C"
-#
-# }
-#
-# Write-Host "Install windows resource kit"
-#
-# msiexec /qn /norestart /i c:\temp\reskit\rktools.msi RKTOOLS="C:\Program Files\Windows Resource Kit\Tools"
-#
-# #msiexec /qn /i c:\temp\reskit\rktools.msi INSTALLDIR="C:\Program Files\Windows Resource Kit\Tools"
-#
 cd C:\temp\
 
 $tempSDPath = "c:\temp\StackdriverMonitoring-GCM-46.exe"
