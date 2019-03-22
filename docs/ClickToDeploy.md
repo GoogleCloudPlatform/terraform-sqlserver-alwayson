@@ -2,7 +2,7 @@
 
 The clicktodeploy pattern is a one click deployment pattern used to deploy environments from the google marketplace.  It requires a minimal number of inputs to define the environment, and with those it uses deployment manager, python (and powershell on windows) to automate the end-to-end deployment.
 
-For the original [click to deploy solution, go here](https://pantheon.corp.google.com/marketplace/details/click-to-deploy-images/mssql?q=alwayson&id=eab6f05c-0287-421f-aa91-f8dd36f27b74). 
+For the original click to deploy search the google cloud marketplace for SQL Server 2016 AlwaysOn Failover cluster instance
 
 It requires 3 files:
   * windows-startup-script-ps1 
