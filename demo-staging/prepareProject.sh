@@ -22,11 +22,11 @@ zone='{your-zone-here}'
 project='{your-project-id}'
 projectNumber={your-project-number}
 
-#differentiate this deployment from others
+#differentiate this deployment from others. Lowercase and less than 30 characters only. 
 prefix='{desired-domain-name-and-unique-seed-for-bucket-name}'
 
 #user you will be running as
-user="{user-you-will-run-as}"
+user='{user-you-will-run-as}'
 
 #######################################################################################
 ### For the purposes of this demo script, you dont need to fill in anything past here
