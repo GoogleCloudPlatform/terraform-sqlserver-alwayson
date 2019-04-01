@@ -15,18 +15,18 @@
 #  limitations under the License.
 #
 
-#Enter your project details for detting up the project dependencies
+#Enter your project details for setting up the project dependencies
 region='{your-region-here}'
 zone='{your-zone-here}'
 
 project='{your-project-id}'
 projectNumber={your-project-number}
 
-#differentiate this deployment from others
+#differentiate this deployment from others. Use lowercase alphanumerics between 6 and 30 characters.
 prefix='{desired-domain-name-and-unique-seed-for-bucket-name}'
 
 #user you will be running as
-user="{user-you-will-run-as}"
+user='{user-you-will-run-as}'
 
 #######################################################################################
 ### For the purposes of this demo script, you dont need to fill in anything past here
