@@ -1,64 +1,85 @@
 # Automated Terraform AlwaysOn deployment
 
-## Time considerations
-The creation of the infrastructure is just the start. This takes about 4 minutes.
+## What is the Goal?
 
-It then takes about 15 minutes for the domain controller to get configured.  The SQL Server machines will wait for this to happen. After the domain controller has completed SQL servers will take an additional 10 minutes.
+This will deploy a Windows environment on to Google Cloud Platform (GCP). This will include Windows Servers with SQL Server installed with AlwaysOn AAG and FCI enabled. 
+
+## Time Considerations
+
+The creation of the infrastructure is just the start, which takes about 4 minutes.
+
+It then takes about 15 minutes for the domain controller to get configured.  The SQL Server VMs will wait for this to happen. After the domain controller has completed the SQL Server VMs will take an approximately 10 more minutes.
 
 # Dependencies
 
-* on a machine with terraform and git
-    * gcloud source repos clone terraform-sqlserver-alwayson --project=cloud-ce-shared-code
-    * cd terraform-sqlserver-alwayson
-    * update the deployment variables in prepareProject.sh
-    	* update the project in terraform backend and in the environment folder in main and backend (this is now done by running prepareProject.sh)
-     		*  In backend.tf
-		        *  bucket  = "{common-backend-bucket}": change this to the backet in your project where you will store the state
-		        *  project = "{cloud-project-id}" : change this to the id of your project
-		* In main.tf of the environment (also done by prepareProject.sh)
-		        *  project = "{cloud-project-id}"
-	        	*  region = "{cloud-project-region}"
-		        *  primaryzone = "{cloud-project-zone}"
-        		*  gcs-prefix = "gs://{deployment-name}-deployment-staging"
-		        *  keyring = "{deployment-name}-deployment-ring"
-		        *  kms-key = "{deployment-name}-deployment-key"
-		        *  domain = "{deployment-name}.com"
-		  	*  dc-netbios-name = "{deployment-name}"
-		        *  runtime-config = "{deployment-name}-runtime-config"
-		* Update the gcs-prefix (done in prepareProject.sh)
-	    * update the bucket in copyBootstrapArtifacts.ps1 (for when you change artficacts and want to copy them up)
-	    * give yourself (the exector of the terraform) ownership of terraform_working_directory.
+On a machine with `terraform` and `git` (the Google Cloud Shell can be leveraged as well):
 
-```bash
-
-sudo chown {user name}:{user name} /terraform_working_directory/
-
+```sh
+gcloud source repos clone terraform-sqlserver-alwayson --project=cloud-ce-shared-code
 ```
 
-  Dependecies are taken care of for the most part by prepareProject.sh which is in the environment folder.
+Let's get into that directory:
 
-  Running this will do the following.
-  
-  * Enable APIs
-    * KMS - gcloud services enable cloudkms.googleapis.com
-    * Runtime configurator - gcloud services enable runtimeconfig.googleapis.com
-    * cloud resource manager
-    * compute manager
-    * iam
-  * Make a bucket for:
-    * state file
-    * passwords
-    * powershell scripts
-  * copy up the required bootstrap scripts
-  * create a new admin service account
-  * bind the logged on user to that service account (can ran as this service account)
-  * make the service account a project editor
-  * create key ring
-  * creat a key
-  * give the new admin user and the project service account rights to encrypt/decrypt with the kms key
-  
+```sh
+cd terraform-sqlserver-alwayson/demo-staging/
+```
 
+Here we'll update the deployment variables in `prepareProject.sh`. Edit everything within the single quotes in `prepareProject.sh` (Note: `projectNumber` doesn't need single quotes, just the number itself):
 
+```
+region='{your-region-here}'
+zone='{your-zone-here}'
+
+project='{your-project-id}'
+projectNumber={your-project-number}
+
+#differentiate this deployment from others
+prefix='{desired-domain-name-and-unique-seed-for-bucket-name}'
+
+#user you will be running as
+user='{user-you-will-run-as}'
+```
+
+Now we'll update the terraform project in the environment folder containing `main.tf` and `backend.tf`, by running:
+
+```sh
+./prepareProject.sh
+```
+
+Here's what's happening:
+
+* In backend.tf
+	*  bucket  = "{common-backend-bucket}": change this to the bucket in your project where you will store the state
+	*  project = "{cloud-project-id}" : change this to the id of your project
+* In main.tf of the environment (also done by prepareProject.sh)
+	*  project = "{cloud-project-id}"
+	*  region = "{cloud-project-region}"
+	*  primaryzone = "{cloud-project-zone}"
+	*  gcs-prefix = "gs://{deployment-name}-deployment-staging"
+	*  keyring = "{deployment-name}-deployment-ring"
+	*  kms-key = "{deployment-name}-deployment-key"
+	*  domain = "{deployment-name}.com"
+	*  dc-netbios-name = "{deployment-name}"
+	*  runtime-config = "{deployment-name}-runtime-config"
+		* Update the gcs-prefix (done in prepareProject.sh)
+* In GCP
+	* Enable APIs
+	    * KMS - gcloud services enable cloudkms.googleapis.com
+	    * Runtime configurator - gcloud services enable runtimeconfig.googleapis.com
+	    * cloud resource manager
+	    * compute manager
+	    * iam
+  	* Make a bucket for:
+	    * state file
+	    * passwords
+	    * powershell scripts
+	    * copy up the required bootstrap scripts
+	    * create a new admin service account
+	    * bind the logged on user to that service account (can ran as this service account)
+	    * make the service account a project editor
+	    * create key ring
+	    * create a key
+	    * give the new admin user and the project service account rights to encrypt/decrypt with the kms key
 ```bash
   
   gcloud services enable cloudkms.googleapis.com
