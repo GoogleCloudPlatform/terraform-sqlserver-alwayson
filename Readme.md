@@ -10,7 +10,7 @@ The creation of the infrastructure is just the start, which takes about 4 minute
 
 It then takes about 15 minutes for the domain controller to get configured.  The SQL Server VMs will wait for this to happen. After the domain controller has completed the SQL Server VMs will take an approximately 10 more minutes.
 
-# Dependencies
+## Dependencies
 
 On a machine with `terraform` and `git` (the Google Cloud Shell can be leveraged as well):
 
