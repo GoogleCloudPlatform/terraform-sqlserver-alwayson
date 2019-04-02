@@ -18,6 +18,12 @@ On a machine with `terraform` and `git` (the Google Cloud Shell can be leveraged
 gcloud source repos clone terraform-sqlserver-alwayson --project=cloud-ce-shared-code
 ```
 
+Or:
+
+```sh
+git clone https://github.com/GoogleCloudPlatform/terraform-sqlserver-alwayson.git
+```
+
 Let's get into that directory:
 
 ```sh
@@ -33,7 +39,7 @@ zone='{your-zone-here}'
 project='{your-project-id}'
 projectNumber={your-project-number}
 
-#differentiate this deployment from others
+#differentiate this deployment from others. Use lowercase alphanumerics between 6 and 30 characters.
 prefix='{desired-domain-name-and-unique-seed-for-bucket-name}'
 
 #user you will be running as
