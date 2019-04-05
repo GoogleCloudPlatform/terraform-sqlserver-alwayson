@@ -46,6 +46,8 @@ prefix='{desired-domain-name-and-unique-seed-for-bucket-name}'
 user='{user-you-will-run-as}'
 ```
 
+:bangbang: For deployment troubleshooting, try entering in another unique `prefix`.
+
 Now we'll update the terraform project in the environment folder containing `main.tf` and `backend.tf`, by running:
 
 ```sh
@@ -102,7 +104,14 @@ Here's what's happening:
   gcloud kms keys create acme-deployment-key --location=us-central1 --keyring=myring --purpose=encryption
 
 ```
-  
+
+## Terraforming the Environment
+
+Next we'll run:
+
+```sh
+terraform init
+```
 
 ## Windows Background
 NetBIOS is a legacy network application used by windows for active directory.  It limits the names of machines to 15 characters. For this reason we must observe this limit on our computer names for our deployment to succeed.
