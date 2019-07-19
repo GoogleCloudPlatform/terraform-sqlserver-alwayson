@@ -25,7 +25,7 @@ projectNumber={your-project-number}
 #differentiate this deployment from others. Use lowercase alphanumerics between 6 and 30 characters.
 prefix='{desired-domain-name-and-unique-seed-for-bucket-name}'
 
-#user you will be running as
+#user you will be running as (a fully google or gmail email address)
 user='{user-you-will-run-as}'
 
 #######################################################################################
