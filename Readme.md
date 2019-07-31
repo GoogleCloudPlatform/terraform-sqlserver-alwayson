@@ -10,6 +10,14 @@ The creation of the infrastructure is just the start, which takes about 4 minute
 
 It then takes about 15 minutes for the domain controller to get configured.  The SQL Server VMs will wait for this to happen. After the domain controller has completed the SQL Server VMs will take an approximately 10 more minutes.
 
+## Permissions
+
+Before you start running Terraform, you need to create a service account in your project for Terraform to run as.  Under IAM and Admin --> Service accounts, create a serice account and then download the key.
+Give the service account the permissions it needs to create infrastructure in your project.
+
+Upload the key to wherever you are running the terraform and set GOOGLE_APPLICATION_CREDENTIALS to use this key ( or follow adding credntials in https://www.terraform.io/docs/providers/google/getting_started.html##)
+
+
 ## Dependencies
 
 On a machine with `terraform` and `git` (the Google Cloud Shell can be leveraged as well):
