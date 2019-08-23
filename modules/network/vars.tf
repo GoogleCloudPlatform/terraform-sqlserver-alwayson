@@ -19,4 +19,5 @@ variable "second-cidr" {type = "string" default = "10.11.1.0/16" }
 variable "third-cidr" {type = "string" default = "10.12.1.0/16" }
 variable "fourth-cidr" {type = "string" default = "10.13.1.0/16" }
 
-variable "region" {type = "string" default = "us-central1" }
+variable "primary-region" {type = "string" default = "us-central1" }
+variable "dr-region" {type = "string" default = "us-east1" }

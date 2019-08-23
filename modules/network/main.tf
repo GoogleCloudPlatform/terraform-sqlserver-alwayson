@@ -16,28 +16,28 @@
 resource "google_compute_subnetwork" "primary-subnetwork" {
   name          = "${var.network-name}-subnet-1"
   ip_cidr_range = "${var.primary-cidr}"
-  region        = "${var.region}"
+  region        = "${var.primary-region}"
   network       = "${google_compute_network.custom-network.self_link}"
 }
 
 resource "google_compute_subnetwork" "subnetwork-2" {
   name          = "${var.network-name}-subnet-2"
   ip_cidr_range = "${var.second-cidr}"
-  region        = "${var.region}"
+  region        = "${var.primary-region}"
   network       = "${google_compute_network.custom-network.self_link}"
 }
 
 resource "google_compute_subnetwork" "subnetwork-3" {
   name          = "${var.network-name}-subnet-3"
   ip_cidr_range = "${var.third-cidr}"
-  region        = "${var.region}"
+  region        = "${var.primary-region}"
   network       = "${google_compute_network.custom-network.self_link}"
 }
 
 resource "google_compute_subnetwork" "subnetwork-4" {
   name          = "${var.network-name}-subnet-4"
   ip_cidr_range = "${var.fourth-cidr}"
-  region        = "${var.region}"
+  region        = "${var.dr-region}"
   network       = "${google_compute_network.custom-network.self_link}"
 }
 

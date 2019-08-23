@@ -17,13 +17,19 @@
 
 #Enter your project details for setting up the project dependencies
 region='{your-region-here}'
-zone='{your-zone-here}'
+zone=$region"-a"
+hazone=$region"-b"
+drregion='{your-dr-region}'   #eg. us-east1 (b,c and d are valid)
+drzone=$drregion"-b"
 
 project='{your-project-id}'
 projectNumber={your-project-number}
 
 #differentiate this deployment from others. Use lowercase alphanumerics between 6 and 30 characters.
 prefix='{desired-domain-name-and-unique-seed-for-bucket-name}'
+
+#domain name (this will have .com added to make it fully qualified)
+domainName='{domain}'
 
 #user you will be running as (a fully google or gmail email address)
 user='{user-you-will-run-as}'
@@ -45,7 +51,7 @@ echo $kmsKey
 
 # The files we have to substitute in are:
 # backend.tf  clearwaiters.sh  copyBootstrapArtifacts.sh  getDomainPassword.sh  main.tf
-sed -i "s/{common-backend-bucket}/$bucketName/g;s/{cloud-project-id}/$project/g;s/{cloud-project-region}/$region/g;s/{cloud-project-zone}/$zone/g;s/{deployment-name}/$prefix/g" backend.tf main.tf clearwaiters.sh copyBootstrapArtifacts.sh getDomainPassword.sh
+sed -i "s/{common-backend-bucket}/$bucketName/g;s/{windows-domain}/$domainName/g;s/{cloud-project-id}/$project/g;s/{cloud-project-region}/$region/g;s/{cloud-project-zone}/$zone/g;s/{cloud-project-hazone}/$hazone/g;s/{cloud-project-drregion}/$drregion/g;s/{cloud-project-drzone}/$drzone/g;s/{deployment-name}/$prefix/g" backend.tf main.tf clearwaiters.sh copyBootstrapArtifacts.sh getDomainPassword.sh
  
 #########################################
 #enable the services that we depend upon

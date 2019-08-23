@@ -82,6 +82,7 @@ resource "google_compute_instance" "sqlserver"{
     function = "${var.function}"
     region = "${var.region}"
     keyring = "${var.keyring}"
+    keyring-region = "${var.kms-region}"
     runtime-config = "${var.runtime-config}"
     kms-key = "${var.kms-key}"
     gcs-prefix = "${var.gcs-prefix}"
