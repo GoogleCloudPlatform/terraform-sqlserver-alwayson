@@ -82,6 +82,7 @@ resource "google_compute_instance" "domain-controller"{
     runtime-config = "${var.runtime-config}"
     deployment-name = "${var.deployment-name}"
     kms-key = "${var.kms-key}"
+    keyring-region = "${var.kms-region}"
     gcs-prefix = "${var.gcs-prefix}"
     netbios-name = "${var.netbios-name}"
     application = "primary domain controller"

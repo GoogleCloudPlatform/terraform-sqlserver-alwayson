@@ -114,6 +114,7 @@ $NetBiosName = Invoke-RestMethod -Headers @{"Metadata-Flavor" = "Google"} -Uri h
 $KmsKey = Invoke-RestMethod -Headers @{"Metadata-Flavor" = "Google"} -Uri http://169.254.169.254/computeMetadata/v1/instance/attributes/kms-key
 $GcsPrefix = Invoke-RestMethod -Headers @{"Metadata-Flavor" = "Google"} -Uri http://169.254.169.254/computeMetadata/v1/instance/attributes/gcs-prefix
 $Region = Invoke-RestMethod -Headers @{"Metadata-Flavor" = "Google"} -Uri http://169.254.169.254/computeMetadata/v1/instance/attributes/region
+$KmsRegion = Invoke-RestMethod -Headers @{"Metadata-Flavor" = "Google"} -Uri http://169.254.169.254/computeMetadata/v1/instance/attributes/keyring-region
 $Keyring = Invoke-RestMethod -Headers @{"Metadata-Flavor" = "Google"} -Uri http://169.254.169.254/computeMetadata/v1/instance/attributes/keyring
 #$RuntimeConfig = Invoke-RestMethod -Headers @{"Metadata-Flavor" = "Google"} -Uri http://169.254.169.254/computeMetadata/v1/instance/attributes/runtime-config
 
@@ -132,10 +133,10 @@ If ($GcsPrefix.EndsWith("/")) {
 }
 $TempFile = New-TemporaryFile
 
-Unwrap-SecureString $LocalAdminPassword | gcloud kms encrypt --key $KmsKey --plaintext-file - --ciphertext-file $TempFile.FullName --location $Region  --keyring $Keyring
+Unwrap-SecureString $LocalAdminPassword | gcloud kms encrypt --key $KmsKey --plaintext-file - --ciphertext-file $TempFile.FullName --location $KmsRegion  --keyring $Keyring
 gsutil cp $TempFile.FullName "$GcsPrefix/output/domain-admin-password.bin"
 
-Unwrap-SecureString $SafeModeAdminPassword | gcloud kms encrypt --key $KmsKey --plaintext-file - --ciphertext-file $TempFile.FullName --location $Region --keyring $Keyring
+Unwrap-SecureString $SafeModeAdminPassword | gcloud kms encrypt --key $KmsKey --plaintext-file - --ciphertext-file $TempFile.FullName --location $KmsRegion --keyring $Keyring
 gsutil cp $TempFile.FullName "$GcsPrefix/output/dsrm-admin-password.bin"
 
 Remove-Item $TempFile.FullName -Force

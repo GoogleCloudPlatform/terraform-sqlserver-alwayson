@@ -26,7 +26,7 @@ variable "deployment-name" {type = "string" default = ""}
 variable "assignedsubnet" {type = "string" default = "default"}
 variable "domain-name" {type="string" default = "test-domain"}
 variable "kms-key" {type="string" default = "p@ssword"}
-variable "kms-region" {type="string" default = "p@ssword"}
+variable "kms-region" {type="string" default = "us-central1"}
 variable "gcs-prefix" {type="string"}
 variable "region" {type="string"}
 variable "subnet-name" {type="string"}

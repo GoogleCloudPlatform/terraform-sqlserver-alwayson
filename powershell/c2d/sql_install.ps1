@@ -751,7 +751,7 @@ function UpdateSubWaiter {
 }
 
 
-## Main
+## Mainregi
 
 # Initialize Script variables
 SetScriptVar
