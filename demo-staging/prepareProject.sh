@@ -22,11 +22,14 @@ hazone=$region"-b"
 drregion='{your-dr-region}'   #eg. us-east1 (b,c and d are valid)
 drzone=$drregion"-b"
 
+#Generate a uniqueu prefix for the bucket
+uniq=$(head /dev/urandom | tr -dc a-z0-9 | head -c 13 ; echo '')
+
 project='{your-project-id}'
 projectNumber={your-project-number}
 
-#differentiate this deployment from others. Use lowercase alphanumerics between 6 and 30 characters.
-prefix='{desired-domain-name-and-unique-seed-for-bucket-name}'
+#differentiate this deployment from others. Use lowercase alphanumerics up to 8 characters.
+prefix='{desired-unique-prefix-for-resources}'
 
 #domain name (this will have .com added to make it fully qualified)
 domainName='{domain}'
@@ -39,7 +42,7 @@ user='{user-you-will-run-as}'
 #######################################################################################
 
 #bucket where your terraform state file, passwords and outputs will be stored
-bucketName=$prefix'-deployment-staging'
+bucketName=$uniq'-deployment-staging'
 
 kmsKeyRing=$prefix"-deployment-ring"
 kmsKey=$prefix"-deployment-key"

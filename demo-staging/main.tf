@@ -32,7 +32,7 @@ locals {
   osimagelinux = "projects/eip-images/global/images/rhel-7-drawfork-v20180327"
   osimageWindows = "windows-server-2016-dc-v20181009"
   osimageSQL = "projects/windows-sql-cloud/global/images/sql-2017-enterprise-windows-2016-dc-v20181009"
-  gcs-prefix = "gs://{deployment-name}-deployment-staging"
+  gcs-prefix = "gs://{common-backend-bucket}"
   keyring = "{deployment-name}-deployment-ring"
   kms-key = "{deployment-name}-deployment-key"
   primary-cidr = "10.0.0.0/16"
@@ -53,13 +53,14 @@ locals {
 
 module "create-network"{
   source = "../modules/network"
-  network-name   = "${local.deployment-name}-${local.environment}-net"
-  primary-cidr   = "${local.primary-cidr}"
-  second-cidr    = "${local.second-cidr}"
-  third-cidr     = "${local.third-cidr}"
-  fourth-cidr    = "${local.fourth-cidr}"
-  primary-region = "${local.region}"
-  dr-region        = "${local.drregion}"
+  network-name    = "${local.deployment-name}-${local.environment}-net"
+  primary-cidr    = "${local.primary-cidr}"
+  second-cidr     = "${local.second-cidr}"
+  third-cidr      = "${local.third-cidr}"
+  fourth-cidr     = "${local.fourth-cidr}"
+  primary-region  = "${local.region}"
+  dr-region       = "${local.drregion}"
+  deployment-name = "${local.deployment-name}"
 }
 
 //windows domain controller

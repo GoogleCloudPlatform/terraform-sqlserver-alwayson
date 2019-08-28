@@ -15,5 +15,5 @@
 #  limitations under the License.
 #
 
-gsutil cp ../powershell/bootstrap/*.ps1 gs://{deployment-name}-deployment-staging/powershell/bootstrap/
+gsutil cp ../powershell/bootstrap/*.ps1 gs://{common-backend-bucket}/powershell/bootstrap/
 

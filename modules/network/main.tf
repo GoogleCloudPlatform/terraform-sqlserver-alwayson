@@ -47,7 +47,7 @@ resource "google_compute_network" "custom-network" {
 }
 
 resource "google_compute_firewall" "default" {
-  name    = "allow-remote-access"
+  name    = "${var.deployment-name}-allow-remote-access"
   network = "${google_compute_network.custom-network.self_link}"
 
 
@@ -61,7 +61,7 @@ resource "google_compute_firewall" "default" {
 }
 
 resource "google_compute_firewall" "allow-internal" {
-  name    = "allow-internal"
+  name    = "${var.deployment-name}-allow-internal"
   network = "${google_compute_network.custom-network.self_link}"
 
   allow {
@@ -73,7 +73,7 @@ resource "google_compute_firewall" "allow-internal" {
 }
 
 resource "google_compute_firewall" "healthchecks" {
-  name    = "allow-healthcheck-access"
+  name    = "${var.deployment-name}-allow-healthcheck-access"
   network = "${google_compute_network.custom-network.self_link}"
 
 
@@ -87,7 +87,7 @@ resource "google_compute_firewall" "healthchecks" {
 }
 
 resource "google_compute_firewall" "alwayson" {
-  name    = "allow-alwayson-access"
+  name    = "${var.deployment-name}-allow-alwayson-access"
   network = "${google_compute_network.custom-network.self_link}"
 
 

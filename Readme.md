@@ -71,7 +71,7 @@ Here's what's happening:
 	*  project = "{cloud-project-id}"
 	*  region = "{cloud-project-region}"
 	*  primaryzone = "{cloud-project-zone}"
-	*  gcs-prefix = "gs://{deployment-name}-deployment-staging"
+	*  gcs-prefix = "gs://{common-backend-bucket}"
 	*  keyring = "{deployment-name}-deployment-ring"
 	*  kms-key = "{deployment-name}-deployment-key"
 	*  domain = "{deployment-name}.com"
