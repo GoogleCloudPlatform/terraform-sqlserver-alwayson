@@ -258,7 +258,7 @@ function _RestoreDataBase {
       Restore-SqlDatabase `
         -Database $Script:db_name `
         -BackupFile $backupLog `
-        -ServerInstance $node2 `
+        -ServerInstance $Global:hostname `
         -RestoreAction Log `
         -NoRecovery
       return $true
@@ -372,9 +372,21 @@ function ConfigureAvailabiltyGroup {
                 # Join the secondary database to the availability group.
                 Write-Logger "-- Join DB in $node to Availability Group. --"
                 try {
-                  Add-SqlAvailabilityDatabase `
-                    -Path "SQLSERVER:\SQL\$($node)\DEFAULT\AvailabilityGroups\$($Script:name_ag)" `
-                    -Database $Script:db_name
+                        # In SQL Server 2017 the Add-SqlAvailabilityDatabase was failing so decided to run it as a query instead
+                        Invoke-Command -ComputerName $node -ScriptBlock {
+                        param($db_name, $name_ag)
+                    
+                        $hostname = [System.Net.Dns]::GetHostName()
+                        Write-Host "$(Get-Date) $hostname - Adding database [$db_name] to Availability Group [$name_ag]"
+                    
+                        $query = "ALTER DATABASE [$db_name] SET HADR AVAILABILITY GROUP = [$name_ag]"
+                        Write-Host $query
+                    
+                        Invoke-Sqlcmd -Query $query
+                    } -ArgumentList $Script:db_name, $Script:name_ag
+                  #Add-SqlAvailabilityDatabase `
+                  #  -Path "SQLSERVER:\SQL\$($node)\DEFAULT\AvailabilityGroups\$($Script:name_ag)" `
+                  #  -Database $Script:db_name
                 }
                 catch {
                   Write-Logger "** Failed to join $Script:db_name on $node to $Script:name_ag. **"
