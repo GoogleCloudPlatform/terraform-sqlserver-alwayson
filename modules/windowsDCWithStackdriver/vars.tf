@@ -13,7 +13,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
-variable "machinetype" {type = "string" default = "n1-standard-4" }
+variable "machinetype" {type = "string" default = "n1-standard-8" }
 variable "osimage" {type = "string"}
 variable "environment" {type = "string" }
 variable "instancerole" {type = "string" default = "p"}
