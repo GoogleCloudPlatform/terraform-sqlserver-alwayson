@@ -48,8 +48,7 @@ resource "google_compute_instance" "domain-controller"{
   zone = "${var.regionandzone}"
 
   boot_disk {
-    initialize_params
-      {
+    initialize_params {
         image = "${var.osimage}"
         size = "200"
         type = "pd-standard"
