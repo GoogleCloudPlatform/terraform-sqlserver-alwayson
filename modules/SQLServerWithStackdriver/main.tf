@@ -44,8 +44,7 @@ resource "google_compute_instance" "sqlserver"{
   machine_type = "${var.machinetype}"
   zone = "${var.regionandzone}"
   boot_disk {
-    initialize_params
-      {
+    initialize_params {
         image = "${var.osimage}"
         size = "200"
         type = "pd-standard"
