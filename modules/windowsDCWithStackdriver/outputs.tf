@@ -13,10 +13,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
-locals{
-  nic = "${google_compute_instance.domain-controller.network_interface[0]}"
+locals {
+  nic = google_compute_instance.domain-controller.network_interface[0]
 }
 
 output "dc-address" {
-  value = "${lookup(local.nic, "network_ip")}"
+  value = local.nic["network_ip"]
 }
+
