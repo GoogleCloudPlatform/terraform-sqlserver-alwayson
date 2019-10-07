@@ -17,24 +17,26 @@
 data "google_project" "project" {}
 // Configure the Google Cloud provider
 provider "google" {
-  project = "{cloud-project-id}"
-  region = "{cloud-project-region}"
+  project = var.project-id
+  region = var.region
 }
 
+
+
 locals {
-  primaryzone = "{cloud-project-zone}"
-  region      = "{cloud-project-region}"
-  hazone      = "{cloud-project-hazone}"
-  drregion      = "{cloud-project-drregion}"
-  drzone      = "{cloud-project-drzone}"
-  deployment-name = "{deployment-name}"
+  primaryzone = var.primaryzone
+  region      = var.region
+  hazone      = var.hazone
+  drregion      = var.drregion
+  drzone      = var.drzone
+  deployment-name = var.deployment-name
   environment = "dev"
   osimagelinux = "projects/eip-images/global/images/rhel-7-drawfork-v20180327"
   osimageWindows = "windows-server-2016-dc-v20181009"
   osimageSQL = "projects/windows-sql-cloud/global/images/sql-2017-enterprise-windows-2016-dc-v20181009"
-  gcs-prefix = "gs://{common-backend-bucket}"
-  keyring = "{deployment-name}-deployment-ring"
-  kms-key = "{deployment-name}-deployment-key"
+  gcs-prefix = "gs://${google_storage_bucket.bootstrap.name}"
+  keyring = "${var.deployment-name}-deployment-key-ring"
+  kms-key = "${var.deployment-name}-deployment-key"
   primary-cidr = "10.0.0.0/16"
   second-cidr  = "10.1.0.0/16"
   second-cidr-alwayson = "10.1.0.5/32"
@@ -45,15 +47,99 @@ locals {
   fourth-cidr  = "10.3.0.0/16"
   fourth-cidr-alwayson = "10.3.0.5/32"
   fourth-cidr-wsfc = "10.3.0.4/32"
-  domain = "{windows-domain}.com"
-  dc-netbios-name = "{windows-domain}"
-  runtime-config = "{deployment-name}-runtime-config"
-  all_nodes="{deployment-name}-sql-01|{deployment-name}-sql-02|{deployment-name}-sql-03"
+  domain = "${var.windows-domain}.com"
+  dc-netbios-name = var.windows-domain
+  runtime-config = "${var.deployment-name}-runtime-config"
+  all_nodes="${var.deployment-name}-sql-01|${var.deployment-name}-sql-02|${var.deployment-name}-sql-03"
 }
+
+resource "random_uuid" "random_uuid" { }
+
+resource "google_storage_bucket" "bootstrap" {
+  name     = "${var.project-id}-mssql-${random_uuid.random_uuid.result}"
+  provisioner "local-exec" {
+    command = "gsutil -m cp -r ../powershell/bootstrap/* gs://${google_storage_bucket.bootstrap.name}/powershell/bootstrap/"
+  }
+}
+
+resource "google_service_account" "sa-admin" {
+  account_id   = "admin-${local.deployment-name}"
+  display_name = "Admin service account for bootstrapping domain-joined servers with elevated permissions"
+}
+
+resource "google_service_account_iam_binding" "sa-binding" {
+  service_account_id = "${google_service_account.sa-admin.name}"
+  role               = "roles/editor"
+
+  members = []
+}
+
+#gcloud kms keyrings create $kmsKeyRing --project $project --location $region
+#gcloud kms keys create $kmsKey --project $project --purpose=encryption --keyring $kmsKeyRing --location $region
+resource "google_kms_key_ring" "mssql-key-ring" {
+  name     = local.keyring
+  location = "global"
+}
+
+resource "google_kms_crypto_key" "mssql-kms-key" {
+  name            = local.kms-key
+  key_ring        = "${google_kms_key_ring.mssql-key-ring.self_link}"
+
+  purpose = "ENCRYPT_DECRYPT"
+
+  lifecycle {
+    #prevent_destroy = true
+  }
+}
+
+resource "google_kms_crypto_key_iam_binding" "decrypter-access" {
+  crypto_key_id = google_kms_crypto_key.mssql-kms-key.self_link
+  role          = "roles/cloudkms.cryptoKeyDecrypter"
+
+  members = [
+    "serviceAccount:${google_service_account.sa-admin.email}"
+  ]
+}
+
+resource "google_kms_crypto_key_iam_binding" "encrypter-access" {
+  crypto_key_id = google_kms_crypto_key.mssql-kms-key.self_link
+  role          = "roles/cloudkms.cryptoKeyEncrypter"
+
+  members = [
+    "serviceAccount:${google_service_account.sa-admin.email}"
+  ]
+}
+
+resource "google_project_service" "runtimeconfig" {
+
+  service = "runtimeconfig.googleapis.com"
+}
+
+resource "google_project_service" "cloudresourcemanager" {
+
+  service = "cloudresourcemanager.googleapis.com"
+}
+
+resource "google_project_service" "iam" {
+
+  service = "iam.googleapis.com"
+}
+
+resource "google_project_service" "cloudkms" {
+
+  service = "cloudkms.googleapis.com"
+}
+
+resource "google_project_service" "compute" {
+
+  service = "compute.googleapis.com"
+  disable_on_destroy = false
+}
+
 
 module "create-network"{
   source = "../modules/network"
-  network-name    = "${local.deployment-name}-${local.environment}-net"
+  network-name    = "${var.deployment-name}-${local.environment}-net"
   primary-cidr    = "${local.primary-cidr}"
   second-cidr     = "${local.second-cidr}"
   third-cidr      = "${local.third-cidr}"
@@ -87,6 +173,8 @@ module "windows-domain-controller" {
   status-variable-path = "ad"
   network-tag     = ["pdc"]
   network-ip      = "10.0.0.100"
+
+
 }
 
 module "sql-server-alwayson-primary" {

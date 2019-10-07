@@ -14,8 +14,8 @@
 #  limitations under the License.
 #
 terraform {
- backend "gcs" {
+ /*backend "gcs" {
    bucket  = "{common-backend-bucket}"
    prefix    = "/states/terraform.tfstate"
- }
+ }*/
 }
