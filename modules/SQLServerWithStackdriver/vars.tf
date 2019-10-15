@@ -13,6 +13,11 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
+
+variable "custom-depends-on" {
+  type = any
+}
+
 variable "alwayson-vip" {
   type        = string
   description = "address where alwayson will listen"

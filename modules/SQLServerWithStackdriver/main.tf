@@ -36,6 +36,7 @@ resource "google_compute_disk" "datadisk" {
   zone = var.regionandzone
   type = "pd-standard"
   size = "200"
+  depends_on = [var.custom-depends-on]
 }
 
 resource "google_compute_instance" "sqlserver" {
@@ -64,11 +65,10 @@ resource "google_compute_instance" "sqlserver" {
   }
 
   attached_disk {
-    source      = "${local.computername}-pd-standard"
+    source      = google_compute_disk.datadisk.name
     device_name = "appdata"
   }
 
-  depends_on = [google_compute_disk.datadisk]
 
   tags = var.network-tag
 
@@ -97,6 +97,13 @@ resource "google_compute_instance" "sqlserver" {
   service_account {
     //scopes = ["storage-ro","monitoring-write","logging-write","trace-append"]
     scopes = ["cloud-platform", "https://www.googleapis.com/auth/cloudruntimeconfig", "storage-rw"]
+  }
+
+  lifecycle {
+    ignore_changes = [
+
+      metadata,
+    ]
   }
 }
 

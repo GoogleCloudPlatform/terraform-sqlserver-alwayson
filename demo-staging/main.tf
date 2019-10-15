@@ -31,7 +31,6 @@ locals {
   drzone      = var.drzone
   deployment-name = var.deployment-name
   environment = "dev"
-  osimagelinux = "projects/eip-images/global/images/rhel-7-drawfork-v20180327"
   osimageWindows = "windows-server-2016-dc-v20181009"
   osimageSQL = "projects/windows-sql-cloud/global/images/sql-2017-enterprise-windows-2016-dc-v20181009"
   gcs-prefix = "gs://${google_storage_bucket.bootstrap.name}"
@@ -74,16 +73,18 @@ resource "google_service_account_iam_binding" "sa-binding" {
   members = []
 }
 
-#gcloud kms keyrings create $kmsKeyRing --project $project --location $region
-#gcloud kms keys create $kmsKey --project $project --purpose=encryption --keyring $kmsKeyRing --location $region
 resource "google_kms_key_ring" "mssql-key-ring" {
   name     = local.keyring
   location = "global"
+
+  depends_on = [google_project_service.cloudkms, google_project_service.runtimeconfig, google_project_service.cloudresourcemanager,
+              google_project_service.iam, google_project_service.compute]
+  
 }
 
 resource "google_kms_crypto_key" "mssql-kms-key" {
   name            = local.kms-key
-  key_ring        = "${google_kms_key_ring.mssql-key-ring.self_link}"
+  key_ring        = google_kms_key_ring.mssql-key-ring.self_link
 
   purpose = "ENCRYPT_DECRYPT"
 
@@ -113,21 +114,25 @@ resource "google_kms_crypto_key_iam_binding" "encrypter-access" {
 resource "google_project_service" "runtimeconfig" {
 
   service = "runtimeconfig.googleapis.com"
+  disable_on_destroy = false
 }
 
 resource "google_project_service" "cloudresourcemanager" {
 
   service = "cloudresourcemanager.googleapis.com"
+  disable_on_destroy = false
 }
 
 resource "google_project_service" "iam" {
 
   service = "iam.googleapis.com"
+  disable_on_destroy = false
 }
 
 resource "google_project_service" "cloudkms" {
 
   service = "cloudkms.googleapis.com"
+  disable_on_destroy = false
 }
 
 resource "google_project_service" "compute" {
@@ -139,36 +144,40 @@ resource "google_project_service" "compute" {
 
 module "create-network"{
   source = "../modules/network"
+  custom-depends-on = [google_project_service.compute, google_project_service.runtimeconfig,
+      google_project_service.iam, google_project_service.cloudkms, google_project_service.cloudresourcemanager]
   network-name    = "${var.deployment-name}-${local.environment}-net"
-  primary-cidr    = "${local.primary-cidr}"
-  second-cidr     = "${local.second-cidr}"
-  third-cidr      = "${local.third-cidr}"
-  fourth-cidr     = "${local.fourth-cidr}"
-  primary-region  = "${local.region}"
-  dr-region       = "${local.drregion}"
-  deployment-name = "${local.deployment-name}"
+  primary-cidr    = local.primary-cidr
+  second-cidr     = local.second-cidr
+  third-cidr      = local.third-cidr
+  fourth-cidr     = local.fourth-cidr
+  primary-region  = local.region
+  dr-region       = local.drregion
+  deployment-name = local.deployment-name
 }
 
 //windows domain controller
 module "windows-domain-controller" {
   source          = "../modules/windowsDCWithStackdriver"
-  subnet-name     = "${module.create-network.subnet-name}"
-  secondary-subnet-name = "${module.create-network.subnet-name}"
+  custom-depends-on = [google_project_service.compute, google_project_service.runtimeconfig,
+      google_project_service.iam, google_project_service.cloudkms, google_project_service.cloudresourcemanager]
+  subnet-name     = module.create-network.subnet-name
+  secondary-subnet-name = module.create-network.subnet-name
   instancerole    = "p"
   instancenumber  = "01"
   function        = "pdc"
   region          = "${local.region}"
-  keyring         = "${local.keyring}"
-  kms-key         = "${local.kms-key}"
-  kms-region      ="${local.region}"
-  environment     = "${local.environment}"
-  regionandzone   = "${local.primaryzone}"
-  osimage         = "${local.osimageWindows}"
-  gcs-prefix      = "${local.gcs-prefix}"
-  deployment-name = "${local.deployment-name}"
-  domain-name     = "${local.domain}"
-  netbios-name    = "${local.dc-netbios-name}"
-  runtime-config  = "${local.runtime-config}"
+  keyring         = google_kms_key_ring.mssql-key-ring.name
+  kms-key         = local.kms-key
+  kms-region      = local.region
+  environment     = local.environment
+  regionandzone   = local.primaryzone
+  osimage         = local.osimageWindows
+  gcs-prefix      = local.gcs-prefix
+  deployment-name = local.deployment-name
+  domain-name     = local.domain
+  netbios-name    = local.dc-netbios-name
+  runtime-config  = local.runtime-config
   wait-on         = ""
   status-variable-path = "ad"
   network-tag     = ["pdc"]
@@ -179,85 +188,91 @@ module "windows-domain-controller" {
 
 module "sql-server-alwayson-primary" {
   source = "../modules/SQLServerWithStackdriver"
-  subnet-name = "${module.create-network.second-subnet-name}"
-  alwayson-vip = "${local.second-cidr-alwayson}"
-  wsfc-vip = "${local.second-cidr-wsfc}"
+  custom-depends-on = [google_project_service.compute, google_project_service.runtimeconfig,
+      google_project_service.iam, google_project_service.cloudkms, google_project_service.cloudresourcemanager]
+  subnet-name = module.create-network.second-subnet-name
+  alwayson-vip = local.second-cidr-alwayson
+  wsfc-vip = local.second-cidr-wsfc
   instancerole = "p"
   instancenumber = "01"
   function = "sql"
-  region = "${local.region}"
-  keyring = "${local.keyring}"
-  kms-key = "${local.kms-key}"
-  kms-region="${local.region}"
-  environment = "${local.environment}"
-  regionandzone = "${local.primaryzone}"
-  osimage = "${local.osimageSQL}"
-  gcs-prefix = "${local.gcs-prefix}"
-  deployment-name = "${local.deployment-name}"
-  domain-name = "${local.domain}"
-  netbios-name = "${local.dc-netbios-name}"
-  runtime-config = "${local.runtime-config}"
+  region = local.region
+  keyring = google_kms_key_ring.mssql-key-ring.name
+  kms-key = local.kms-key
+  kms-region= local.region
+  environment = local.environment
+  regionandzone = local.primaryzone
+  osimage = local.osimageSQL
+  gcs-prefix = local.gcs-prefix
+  deployment-name = local.deployment-name
+  domain-name = local.domain
+  netbios-name = local.dc-netbios-name
+  runtime-config = local.runtime-config
   wait-on = "bootstrap/${local.deployment-name}/ad/success"
-  domain-controller-address = "${module.windows-domain-controller.dc-address}"
+  domain-controller-address = module.windows-domain-controller.dc-address
   post-join-script-url = "${local.gcs-prefix}/powershell/bootstrap/install-sql-server-principal-step-1.ps1"
   status-variable-path = "mssql"
   network-tag = ["sql", "internal"]
-  sql_nodes="${local.deployment-name}-sql-01|${local.deployment-name}-sql-02|${local.deployment-name}-sql-03"
+  sql_nodes= "${local.deployment-name}-sql-01|${local.deployment-name}-sql-02|${local.deployment-name}-sql-03"
 
 }
 
  module "sql-server-alwayson-secondary" {
   source = "../modules/SQLServerWithStackdriver"
-  subnet-name = "${module.create-network.third-subnet-name}"
+    custom-depends-on = [google_project_service.compute, google_project_service.runtimeconfig,
+      google_project_service.iam, google_project_service.cloudkms, google_project_service.cloudresourcemanager]
+  subnet-name = module.create-network.third-subnet-name
   instancerole = "s"
   instancenumber = "02"
   function = "sql"
-  region = "${local.region}"
-  keyring = "${local.keyring}"
-  kms-key = "${local.kms-key}"
-  kms-region="${local.region}"
-  environment = "${local.environment}"
-  regionandzone = "${local.hazone}"
-  osimage = "${local.osimageSQL}"
-  gcs-prefix = "${local.gcs-prefix}"
-  deployment-name = "${local.deployment-name}"
-  domain-name = "${local.domain}"
-  netbios-name = "${local.dc-netbios-name}"
-  runtime-config = "${local.runtime-config}"
+  region = local.region
+  keyring = google_kms_key_ring.mssql-key-ring.name
+  kms-key = local.kms-key
+  kms-region= local.region
+  environment = local.environment
+  regionandzone = local.hazone
+  osimage = local.osimageSQL
+  gcs-prefix = local.gcs-prefix
+  deployment-name = local.deployment-name
+  domain-name = local.domain
+  netbios-name = local.dc-netbios-name
+  runtime-config = local.runtime-config
   wait-on = "bootstrap/${local.deployment-name}/ad/success"
-  domain-controller-address = "${module.windows-domain-controller.dc-address}"
+  domain-controller-address = module.windows-domain-controller.dc-address
   post-join-script-url = "${local.gcs-prefix}/powershell/bootstrap/install-sql-server-principal-step-1.ps1"
   status-variable-path = "mssql"
   network-tag = ["sql", "internal"]
-  sql_nodes="${local.deployment-name}-sql-01|${local.deployment-name}-sql-02|${local.deployment-name}-sql-03"
-  alwayson-vip = "${local.third-cidr-alwayson}"
-  wsfc-vip = "${local.third-cidr-wsfc}"
+  sql_nodes= "${local.deployment-name}-sql-01|${local.deployment-name}-sql-02|${local.deployment-name}-sql-03"
+  alwayson-vip = local.third-cidr-alwayson
+  wsfc-vip = local.third-cidr-wsfc
 }
 
  module "sql-server-alwayson-secondary-2" {
   source = "../modules/SQLServerWithStackdriver"
-  subnet-name = "${module.create-network.fourth-subnet-name}"
+    custom-depends-on = [google_project_service.compute, google_project_service.runtimeconfig,
+      google_project_service.iam, google_project_service.cloudkms, google_project_service.cloudresourcemanager]
+  subnet-name = module.create-network.fourth-subnet-name
   instancerole = "s"
   instancenumber = "03"
   function = "sql"
-  region = "${local.drregion}"
-  keyring = "${local.keyring}"
-  kms-key = "${local.kms-key}"
-  kms-region="${local.region}"
-  environment = "${local.environment}"
-  regionandzone = "${local.drzone}"
-  osimage = "${local.osimageSQL}"
-  gcs-prefix = "${local.gcs-prefix}"
-  deployment-name = "${local.deployment-name}"
-  domain-name = "${local.domain}"
-  netbios-name = "${local.dc-netbios-name}"
-  runtime-config = "${local.runtime-config}"
+  region = local.drregion
+  keyring = google_kms_key_ring.mssql-key-ring.name
+  kms-key = local.kms-key
+  kms-region= local.region
+  environment = local.environment
+  regionandzone = local.drzone
+  osimage = local.osimageSQL
+  gcs-prefix = local.gcs-prefix
+  deployment-name = local.deployment-name
+  domain-name = local.domain
+  netbios-name = local.dc-netbios-name
+  runtime-config = local.runtime-config
   wait-on = "bootstrap/${local.deployment-name}/ad/success"
-  domain-controller-address = "${module.windows-domain-controller.dc-address}"
+  domain-controller-address = module.windows-domain-controller.dc-address
   post-join-script-url = "${local.gcs-prefix}/powershell/bootstrap/install-sql-server-principal-step-1.ps1"
   status-variable-path = "mssql"
   network-tag = ["sql", "internal"]
-  sql_nodes="${local.deployment-name}-sql-01|${local.deployment-name}-sql-02|${local.deployment-name}-sql-03"
-  alwayson-vip = "${local.fourth-cidr-alwayson}"
-  wsfc-vip = "${local.fourth-cidr-wsfc}"
+  sql_nodes= "${local.deployment-name}-sql-01|${local.deployment-name}-sql-02|${local.deployment-name}-sql-03"
+  alwayson-vip = local.fourth-cidr-alwayson
+  wsfc-vip = local.fourth-cidr-wsfc
 }

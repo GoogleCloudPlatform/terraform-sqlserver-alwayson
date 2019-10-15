@@ -15,16 +15,16 @@
 #
 resource "google_compute_subnetwork" "primary-subnetwork" {
   name          = "${var.network-name}-subnet-1"
-  ip_cidr_range = "${var.primary-cidr}"
-  region        = "${var.primary-region}"
-  network       = "${google_compute_network.custom-network.self_link}"
+  ip_cidr_range = var.primary-cidr
+  region        = var.primary-region
+  network       = google_compute_network.custom-network.self_link
 }
 
 resource "google_compute_subnetwork" "subnetwork-2" {
   name          = "${var.network-name}-subnet-2"
-  ip_cidr_range = "${var.second-cidr}"
-  region        = "${var.primary-region}"
-  network       = "${google_compute_network.custom-network.self_link}"
+  ip_cidr_range = var.second-cidr
+  region        = var.primary-region
+  network       = google_compute_network.custom-network.self_link
 }
 
 resource "google_compute_subnetwork" "subnetwork-3" {
@@ -36,14 +36,15 @@ resource "google_compute_subnetwork" "subnetwork-3" {
 
 resource "google_compute_subnetwork" "subnetwork-4" {
   name          = "${var.network-name}-subnet-4"
-  ip_cidr_range = "${var.fourth-cidr}"
-  region        = "${var.dr-region}"
+  ip_cidr_range = var.fourth-cidr
+  region        = var.dr-region
   network       = "${google_compute_network.custom-network.self_link}"
 }
 
 resource "google_compute_network" "custom-network" {
-  name                    = "${var.network-name}"
+  name                    = var.network-name
   auto_create_subnetworks = false
+  depends_on = [var.custom-depends-on]
 }
 
 resource "google_compute_firewall" "default" {
@@ -62,7 +63,7 @@ resource "google_compute_firewall" "default" {
 
 resource "google_compute_firewall" "allow-internal" {
   name    = "${var.deployment-name}-allow-internal"
-  network = "${google_compute_network.custom-network.self_link}"
+  network = google_compute_network.custom-network.self_link
 
   allow {
     protocol = "all"
@@ -74,7 +75,7 @@ resource "google_compute_firewall" "allow-internal" {
 
 resource "google_compute_firewall" "healthchecks" {
   name    = "${var.deployment-name}-allow-healthcheck-access"
-  network = "${google_compute_network.custom-network.self_link}"
+  network = google_compute_network.custom-network.self_link
 
 
   allow {
@@ -88,7 +89,7 @@ resource "google_compute_firewall" "healthchecks" {
 
 resource "google_compute_firewall" "alwayson" {
   name    = "${var.deployment-name}-allow-alwayson-access"
-  network = "${google_compute_network.custom-network.self_link}"
+  network = google_compute_network.custom-network.self_link
 
 
   allow {

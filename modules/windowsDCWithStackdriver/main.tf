@@ -36,11 +36,13 @@ resource "google_compute_disk" "datadisk" {
   zone = var.regionandzone
   type = "pd-standard"
   size = "200"
+  depends_on = [var.custom-depends-on]
 }
 
 resource "google_runtimeconfig_config" "ad-runtime-config" {
   name        = var.runtime-config
   description = "Runtime configuration values for my service"
+  depends_on = [var.custom-depends-on]
 }
 
 resource "google_compute_instance" "domain-controller" {
@@ -64,7 +66,7 @@ resource "google_compute_instance" "domain-controller" {
   }
 
   attached_disk {
-    source      = "${local.computername}-pd-standard"
+    source      = google_compute_disk.datadisk.name
     device_name = "appdata"
   }
 
@@ -94,6 +96,12 @@ resource "google_compute_instance" "domain-controller" {
   service_account {
     //scopes = ["storage-ro","monitoring-write","logging-write","trace-append"]
     scopes = ["https://www.googleapis.com/auth/cloud-platform"]
+  }
+  lifecycle {
+    ignore_changes = [
+
+      metadata,
+    ]
   }
 }
 
