@@ -89,7 +89,7 @@ resource "google_compute_instance" "sqlserver" {
     windows-startup-script-ps1 = data.template_file.windowsstartup.rendered
     role                       = var.instancerole
     wait-on                    = var.wait-on
-    project-id                 = lower(data.google_project.project.id)
+    project-id                 = lower(data.google_project.project.project_id)
     post-join-script-url       = var.post-join-script-url
     sql_nodes                  = var.sql_nodes
   }

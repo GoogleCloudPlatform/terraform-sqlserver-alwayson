@@ -59,7 +59,7 @@ sed -i "s/{common-backend-bucket}/$bucketName/g;s/{windows-domain}/$domainName/g
 #########################################
 #enable the services that we depend upon
 ##########################################
- for API in compute cloudkms deploymentmanager runtimeconfig cloudresourcemanager iam
+ for API in compute cloudkms deploymentmanager runtimeconfig cloudresourcemanager iam storage-api storage-component
  do
          gcloud services enable "$API.googleapis.com" --project $project
  done

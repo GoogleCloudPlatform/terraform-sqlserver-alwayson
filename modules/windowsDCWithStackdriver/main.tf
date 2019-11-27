@@ -88,7 +88,7 @@ resource "google_compute_instance" "domain-controller" {
     windows-startup-script-ps1 = data.template_file.windowsstartup.rendered
     role                       = var.instancerole
     status-variable-path       = var.status-variable-path
-    project-id                 = lower(data.google_project.project.id)
+    project-id                 = lower(data.google_project.project.project_id)
   }
 
   service_account {
