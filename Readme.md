@@ -2,7 +2,7 @@
 
 ## What is the Goal?
 
-This will deploy a Windows environment on to Google Cloud Platform (GCP). This will include Windows Servers with SQL Server installed with AlwaysOn AAG and FCI enabled. 
+This will deploy a Windows environment on to Google Cloud Platform (GCP). This will include Windows Servers with SQL Server installed with AlwaysOn AG. 
 
 ## Time Considerations
 
