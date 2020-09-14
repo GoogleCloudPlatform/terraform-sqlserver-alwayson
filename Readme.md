@@ -20,7 +20,7 @@ Upload the key to wherever you are running the terraform and set GOOGLE_APPLICAT
 
 ## Dependencies
 
-On a machine with `terraform` and `git` (the Google Cloud Shell can be leveraged as well):
+On a machine with `terraform` (at least 0.13) and `git` (the Google Cloud Shell can be leveraged as well):
 
 ```sh
 gcloud source repos clone terraform-sqlserver-alwayson --project=cloud-ce-shared-code
@@ -120,6 +120,12 @@ Next we'll run:
 ```sh
 terraform init
 ```
+Followed by 
+
+```sh
+terraform apply
+```
+You might encounter some warnings about interpolation-only expressions, due to changes between TF versions but they can safely be ignored. as of 0.13.2
 
 ## Windows Background
 NetBIOS is a legacy network application used by windows for active directory.  It limits the names of machines to 15 characters. For this reason we must observe this limit on our computer names for our deployment to succeed.
