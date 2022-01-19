@@ -19,7 +19,7 @@ Function New-RandomString {
 		[int] $Length = 10,
 		[char[]] $AllowedChars = $Null
 	)
-	If ($AllowedChars -eq $Null) {
+	If ($Null -eq $AllowedChars) {
 		(,(33,126)) | % { For ($a=$_[0]; $a -le $_[1]; $a++) { $AllowedChars += ,[char][byte]$a } }
 	}
 	For ($i=1; $i -le $Length; $i++) {

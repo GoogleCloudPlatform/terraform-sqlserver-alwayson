@@ -2,7 +2,7 @@
 
 We create a random password for local admin and safemode admin in primary-domain-controller-step-1.ps1. These are stored in SecureStrings.
 
-This project is depedent upon the creation of a kms ring and key that you will reference from the metadata.
+This project is dependent upon the creation of a kms ring and key that you will reference from the metadata.
 
 ```powershell
 

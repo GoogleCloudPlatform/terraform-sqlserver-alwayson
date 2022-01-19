@@ -87,11 +87,11 @@ Function Wait-RuntimeConfigWaiter {
 
     Write-Host $ConfigPath/waiters/$Waiter
 
-    While (($RuntimeWaiter -eq $Null) -Or (-Not $RuntimeWaiter.done)) {
+    While (($Null -eq $RuntimeWaiter) -Or (-Not $RuntimeWaiter.done)) {
 		$RuntimeWaiter = Get-RuntimeConfigWaiter -ConfigPath $ConfigPath -Waiter $Waiter
 		If (-Not $RuntimeWaiter.done) {
 			Write-Host "Waiting for [$ConfigPath/waiters/$Waiter]..."
-			Sleep $Sleep
+			Start-Sleep $Sleep
 		}
 	}
 	Return $RuntimeWaiter
