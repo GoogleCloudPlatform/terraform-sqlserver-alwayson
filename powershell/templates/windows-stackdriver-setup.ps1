@@ -107,7 +107,7 @@ $appToMatch = "StackdriverAgent"
 $result = Get-Process | where {$_.ProcessName -like $appToMatch}
 
 # Now running elevated so launch the script:
-If ($result -eq $null) {
+If ($null -eq $result) {
     Write-Host "Running the Stackdriver install"
     .\StackdriverMonitoring-GCM-46.exe /S
     #msiexec.exe /qn /norestart /i $tempdir\$puppetInstall PUPPET_MASTER_SERVER=$PROJECT_PREFIX-puppet-p.c.$PROJECT_NAME.internal PUPPET_AGENT_ENVIRONMENT=$PUPPET_AGENT_ENVIRONMENT  /l* $LOG

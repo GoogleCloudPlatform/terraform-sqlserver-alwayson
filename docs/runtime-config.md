@@ -22,7 +22,7 @@ The runtime config of a project can be found at the following full path:
 
 https://runtimeconfig.googleapis.com/v1beta1/projects/{project id}/configs/{runtime-config}. 
 
-This is important because some methods reuire the full path to the config and variables while others do not.  The clicktodeploy code which I am leveraging, requires that in metadata is a key value pair as follows:
+This is important because some methods require the full path to the config and variables while others do not.  The clicktodeploy code which I am leveraging, requires that in metadata is a key value pair as follows:
 status-config-url:https://runtimeconfig.googleapis.com/v1beta1/projects/{project-name}/configs/acme-runtime-config
 
 

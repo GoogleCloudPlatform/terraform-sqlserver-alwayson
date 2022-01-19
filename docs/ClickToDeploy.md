@@ -8,7 +8,7 @@ It requires 3 files:
   * windows-startup-script-ps1 
     * defaulted on install 
     * downloads the following 2 scripts to c:\C2D
-    * runs c:\c2D\sql_install.ps1 as a schedulted task
+    * runs c:\c2D\sql_install.ps1 as a scheduled task
   * sql_install.ps1 - downloaded from gs://c2d-windows/scripts/sqlserver
     * parameters come from metadata of the instance
       * c2d-property-sa-account       : domain admin account
@@ -95,7 +95,7 @@ sql_install.ps1 gets called without any arguments from a scheduled task. It does
     * sets static ip addresses to 10.x.1.4
     * sets listener ip addresses to 10.x.1.5
     * it is assume the gateway and DC will always be 10.0.0.100
-    * keep list of remote nodes (nodes this isnt running on) in remote_nodes
+    * keep list of remote nodes (nodes this isn't running on) in remote_nodes
   * SetIP 
     * Set IP addresses in Script:static_ip array
     * Set gateway to 10.0.0.100 in $Script:static_listner_ip

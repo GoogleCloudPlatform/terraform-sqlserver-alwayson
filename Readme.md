@@ -12,10 +12,10 @@ It then takes about 15 minutes for the domain controller to get configured.  The
 
 ## Permissions
 
-Before you start running Terraform, you need to create a service account in your project for Terraform to run as.  Under IAM and Admin --> Service accounts, create a serice account and then download the key.
+Before you start running Terraform, you need to create a service account in your project for Terraform to run as.  Under IAM and Admin --> Service accounts, create a service account and then download the key.
 Give the service account the permissions it needs to create infrastructure in your project.
 
-Upload the key to wherever you are running the terraform and set GOOGLE_APPLICATION_CREDENTIALS to use this key ( or follow adding credntials in https://www.terraform.io/docs/providers/google/getting_started.html##)
+Upload the key to wherever you are running the terraform and set GOOGLE_APPLICATION_CREDENTIALS to use this key ( or follow adding credentials in https://www.terraform.io/docs/providers/google/getting_started.html##)
 
 
 ## Dependencies
@@ -133,7 +133,7 @@ NetBIOS is a legacy network application used by windows for active directory.  I
 ### Naming Convention
 We are limited as described above.
 ${var.deployment-name} - a unique  8 character deployment name
-${var.function} - 3 characters decribing the purpose of the instance
+${var.function} - 3 characters describing the purpose of the instance
 ${var.instancenumber} - two digits
 computername = "${var.deployment-name}-${var.function}-${var.instancenumber}"
 
@@ -146,11 +146,11 @@ domain admin: usr: {full domain name}\Administrator pw:
 
 ## Project Layout
 There are folders for environment-specific content such as sandbox, clickToDeploy and acme-staging.  Modules, used by the deployment scripts, can be found in the ./modules directory. The contents of the docs directory is for documentary purposes, even if it is code.  The 2 shell scripts in the environment folders are:
-  * clearwaiters.sh - if you are redeploying only the sql servers (you havent destroyed the whole environment including the runtime-config) this script will delete the waiters.
+  * clearwaiters.sh - if you are redeploying only the sql servers (you haven't destroyed the whole environment including the runtime-config) this script will delete the waiters.
   * copyBootstrapArticles.sh - will copy essential scripts from ../powershell/bootstrap/ to {your deployment bucket (gcs-prefix in main.tf)}/powershell/bootstrap/
 
 ## Runtime-Config nuances
-Runtime-config has limited support in terraform.  In deployment manager one can create the config and variables.  In terraform, you can only create the runtime config, variable and waiters must be created in powershell scipts or using command line or rest API.
+Runtime-config has limited support in terraform.  In deployment manager one can create the config and variables.  In terraform, you can only create the runtime config, variable and waiters must be created in powershell scripts or using command line or rest API.
 
 The following deletes a waiter, which you might need to do if you redeploy
 
@@ -159,7 +159,7 @@ gcloud beta runtime-config configs waiters delete clicktodeploy-dev-sql-p-01_wai
 ```
 
 ## TO connect to the instances we need firewall rules allowing access
-The network module has a defult firewall resource that allows access for 3389 and 8080 to machines tagged we, pdc pr sql. If you are testing in a google project, your rules will be deleted by gce enforcer every 15 minutes and you will need to recreate your rule.
+The network module has a default firewall resource that allows access for 3389 and 8080 to machines tagged we, pdc pr sql. If you are testing in a google project, your rules will be deleted by gce enforcer every 15 minutes and you will need to recreate your rule.
 
 1. Go to www.whatismyip.com and find your external ip address
 2. Ensure your ip address with /32 (only that  ip address) is in the source range
@@ -237,7 +237,7 @@ sql_install.ps1 gets called without any arguments from a scheduled task. It does
     * sets static ip addresses to 10.x.1.4
     * sets listener ip addresses to 10.x.1.5
     * it is assume the gateway and DC will always be 10.0.0.100
-    * keep list of remote nodes (nodes this isnt running on) in remote_nodes
+    * keep list of remote nodes (nodes this isn't running on) in remote_nodes
   * SetIP 
     * Set IP addresses in Script:static_ip array
     * Set gateway to 10.0.0.100 in $Script:static_listner_ip
@@ -289,11 +289,11 @@ $Script:static_ip= @("10.1.0.4","10.2.0.4","10.3.0.4")
 
 
 # Known issues
-  * Once complete, sometimes the two replicas are not synchonized.  I think this is dues to the faiure of the script executed in sql_install.ps1._DBPermission.  THis is currently taking nodes as an array as a parameter but it needs to rather loop through because SUSER_ID() does not take an array as a parameter. Not a big issue though because this is just a demo db.
+  * Once complete, sometimes the two replicas are not synchronized.  I think this is dues to the failure of the script executed in sql_install.ps1._DBPermission.  THis is currently taking nodes as an array as a parameter but it needs to rather loop through because SUSER_ID() does not take an array as a parameter. Not a big issue though because this is just a demo db.
     * removing and radding the db on nodes 2 and 3 succeeds.
-  * Once the deployment is complete, the scopes of the machines can be reset and also the access to the kms key shuld be adjusted to reflect the desired administrative priorities.
+  * Once the deployment is complete, the scopes of the machines can be reset and also the access to the kms key should be adjusted to reflect the desired administrative priorities.
   * TODO: Hardcoded domain ip in sql_install.ps1 10.0.0.100 replace with fetch from metadata
-  * TODO: the getMetaData functions and Rutime-Config functions are repeated in the gce_base.psm1, c2d_base.psm1 and also in some of the ps1 scripts. In general, if we are importing a library that contains a function, it should be used in that function rather than re-implemented locally.  Refactor this code to ensure optimal definition and implimentation of common functions. 
+  * TODO: the getMetaData functions and Runtime-Config functions are repeated in the gce_base.psm1, c2d_base.psm1 and also in some of the ps1 scripts. In general, if we are importing a library that contains a function, it should be used in that function rather than re-implemented locally.  Refactor this code to ensure optimal definition and implementation of common functions. 
 
 
 

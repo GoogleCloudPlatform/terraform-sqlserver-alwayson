@@ -90,11 +90,11 @@ Function Wait-RuntimeConfigWaiter {
 		[int] $Sleep = 60
 	)
 	$RuntimeWaiter = $Null
-	While (($RuntimeWaiter -eq $Null) -Or (-Not $RuntimeWaiter.done)) {
+	While (($Null -eq $RuntimeWaiter) -Or (-Not $RuntimeWaiter.done)) {
 		$RuntimeWaiter = Get-RuntimeConfigWaiter -ConfigPath $ConfigPath -Waiter $Waiter
 		If (-Not $RuntimeWaiter.done) {
 			Write-Host "Waiting for [$ConfigPath/waiters/$Waiter]..."
-			Sleep $Sleep
+			Start-Sleep $Sleep
 		}
 	}
 	Return $RuntimeWaiter
@@ -105,7 +105,7 @@ Function New-RandomString {
 		[int] $Length = 10,
 		[char[]] $AllowedChars = $Null
 	)
-	If ($AllowedChars -eq $Null) {
+	If ($null -eq $AllowedChars) {
 		(,(33,126)) | % { For ($a=$_[0]; $a -le $_[1]; $a++) { $AllowedChars += ,[char][byte]$a } }
 	}
 	For ($i=1; $i -le $Length; $i++) {
